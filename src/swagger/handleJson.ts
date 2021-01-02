@@ -13,7 +13,8 @@ export const removeTrailingSlash = (url: string): string => {
 
 export default function (
   response: OpenAPIV2.Document,
-  entrypointUrl: string
+  entrypointUrl: string,
+  dialect: string
 ): Resource[] {
   const paths = getResources(response.paths);
 
@@ -57,15 +58,21 @@ export default function (
     ) as string[];
 
     const fields = fieldNames.map(
-      (fieldName) =>
+      (fieldName) => {
+        var reference = null;
+        if ("foreign_key_id" === dialect) {
+          if (fieldName.includes("_id")) {
+            reference = {name: fieldName.substring( 0, fieldName.indexOf( "_id" ) ), url: ""};
+          }
+        }
         new Field(fieldName, {
           id: null,
           range: null,
-          reference: null,
+          reference: reference,
           required: !!requiredFields.find((value) => value === fieldName),
           description: get(properties[fieldName], `description`, ``),
         })
-    );
+      });
 
     return new Resource(name, url, {
       id: null,

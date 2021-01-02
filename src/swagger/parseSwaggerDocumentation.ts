@@ -9,7 +9,8 @@ export interface ParsedSwaggerDocumentation {
 }
 
 export default function parseSwaggerDocumentation(
-  entrypointUrl: string
+  entrypointUrl: string,
+  dialect: string
 ): Promise<ParsedSwaggerDocumentation> {
   entrypointUrl = removeTrailingSlash(entrypointUrl);
   return fetch(entrypointUrl)
@@ -17,7 +18,7 @@ export default function parseSwaggerDocumentation(
     .then(
       ([res, response]: [res: Response, response: OpenAPIV2.Document]) => {
         const title = response.info.title;
-        const resources = handleJson(response, entrypointUrl);
+        const resources = handleJson(response, entrypointUrl, dialect);
 
         return Promise.resolve({
           api: new Api(entrypointUrl, { title, resources }),
