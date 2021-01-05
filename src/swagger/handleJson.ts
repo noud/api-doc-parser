@@ -59,19 +59,19 @@ export default function (
 
     const fields = fieldNames.map(
       (fieldName) => {
-        var reference = null;
-        if ("foreign_key_id" === dialect) {
-          if (fieldName.includes("_id")) {
-            reference = {name: fieldName.substring( 0, fieldName.indexOf( "_id" ) ), url: ""};
-          }
-        }
-        new Field(fieldName, {
+        let field: any = {
           id: null,
           range: null,
-          reference: reference,
           required: !!requiredFields.find((value) => value === fieldName),
           description: get(properties[fieldName], `description`, ``),
-        })
+        };
+        if ("foreign_key_id" === dialect) {
+          if (fieldName.includes("_id")) {
+            field.reference = {name: fieldName.substring( 0, fieldName.indexOf( "_id" ) ), url: ""};
+            field.maxCardinality = 1;
+          }
+        }
+        new Field(fieldName, field)
       });
 
     return new Resource(name, url, {
